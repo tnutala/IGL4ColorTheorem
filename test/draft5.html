@@ -39,7 +39,8 @@
     <p>
     </p>
 
-    <button id= check onclick="foo1.check()">check coloring</button>
+    <button id= check onclick="check()">check coloring</button>
+        <button id= check onclick="increment(1)">graph</button>
 
 
     </p>
@@ -57,10 +58,10 @@
                 </fieldset>
                 <fieldset id="thirdColumn">
                     <span>Compact country shapes:</span><input type="checkbox" id="useCompactShapes"><br />
-                    <span>Show centers and connections:</span><input type="checkbox" id="showCentersAndConnection"><br />
+                    <span>Show centers and connections:</span><input type="button" id="showCentersAndConnection" onclick="showCentersAndConnection++"><br />
                     
                     <input type="button" id="generate" value="Generate New Map">
-                    <input type="button" value="Refresh Page" onClick="window.location.reload()">
+                    <input type="button" value="generate new map" onClick="window.location.reload()">
                     <input type="button" id="check" value="check coloring">
                
                <p id="matrix"></p>
@@ -72,6 +73,25 @@
     </div>
 
     <script type="text/javascript">
+
+
+var showCentersAndConnection = 0;
+function increment(number){
+    showCentersAndConnection= showCentersAndConnection+ number ;
+
+}
+alert(showCentersAndConnection);
+            var width = parseInt(document.getElementById('mapWidth').value);
+            var height = parseInt(document.getElementById('mapHeight').value);
+            var hexagonSize = parseInt(document.getElementById('hexagonSize').value);
+            var numberOfCountries = parseInt(document.getElementById('numberOfCountries').value);
+            var countrySizeVariance = parseFloat(document.getElementById('countrySizeVariance').value);
+            var useDistortion = document.getElementById('useDistortion');
+            var showCentersAndConnection = document.getElementById('showCentersAndConnection').checked;
+            var useCompactShapes = document.getElementById('useCompactShapes').checked;
+
+
+
 
 
     var checkbutton = document.getElementById('check');
@@ -94,37 +114,18 @@ hoverColor= choice.replace(/0/g, "6")
 
 };
 
+var generator = new MapGenerator();
 
 
 
 
 ///////GENERATE FUNCTION////////
 
-
 function generate() {
-
-
-
-
-            var width = parseInt(document.getElementById('mapWidth').value);
-            var height = parseInt(document.getElementById('mapHeight').value);
-            var hexagonSize = parseInt(document.getElementById('hexagonSize').value);
-            var numberOfCountries = parseInt(document.getElementById('numberOfCountries').value);
-            var countrySizeVariance = parseFloat(document.getElementById('countrySizeVariance').value);
-            var useDistortion = document.getElementById('useDistortion');
-            var showCentersAndConnection = document.getElementById('showCentersAndConnection').checked;
-            var useCompactShapes = document.getElementById('useCompactShapes').checked;
-
-
             paper.clear();
             paper.setSize(width, height);
-            //Raphael.getColor.reset();
-            
-
-
 
           try {
-                var generator = new MapGenerator();
                 
                 generator.createHexagonPattern(
                     width,
@@ -139,8 +140,27 @@ function generate() {
                     useCompactShapes
                 );
                 
-                var map = generator.getMap();       
-           
+                var map = generator.getMap();      
+         }
+
+          catch(e) {
+                alert(e);
+            }
+      
+           return map;
+
+
+        } ////////generate fnc ends
+
+
+
+
+
+
+var foo1 = generate();   
+generateButton.onclick = foo1;
+
+
 
 
 //////////ON CLICK Section////////
@@ -152,11 +172,10 @@ var style = {
         "stroke-linejoin": "round"  };
 
 var regionSet = {} ;
-var regionSetColor = {};
 
-for(var i=0; i< map.regions.length; i++){
+for(var i=0; i< foo1.regions.length; i++){
 
-        regionSet[i] = paper.path(map.regions[i].pathString).attr(style); 
+        regionSet[i] = paper.path(foo1.regions[i].pathString).attr(style); 
     }
 
 
@@ -186,8 +205,6 @@ for(var i in regionSet) {
 
             }
         
-// if animations are equal 
-
 
 
         }
@@ -195,65 +212,67 @@ for(var i in regionSet) {
     }) (regionSet[i]);
 
   
-   }   
+   }   /// onclick end
+
+    
+
+                      //though it's confusing, you can call functions before you define them in JavaScript
+
+
 ///Checking function///
 function check() {
-for (var j = 0; j < map.adjacencyMatrix.length; j++) {      //map.adjacency.length = number of countries
+var error = 0;
+for (var j = 0; j < foo1.adjacencyMatrix.length; j++) {      //map.adjacency.length = number of countries
             for (var k = 0; k < j; k++) {
-                         if (map.adjacencyMatrix[j][k] != 0) {
+                         if (foo1.adjacencyMatrix[j][k] != 0) {
                             if (regionSet[j].attr('fill')===regionSet[k].attr('fill')) 
-                                        alert("this is a NON-VALID coloring");                                
+                                        error++;
                                      
                                 else {
 
-                                        alert("this is a VALID coloring");
                                     }
 
                             }
                             }
                             }
-                       }  //////////
+if (error>0){
+alert("this is a NON-VALID coloring");                                
+}
+else {
+alert("this is a VALID coloring");
+
+}
+        }  
+//////////
 
 
 
-                for (var i = 0; i < map.regions.length; i++) {          
+///////
+
+                for (var i = 0; i < foo1.regions.length; i++) {          
                   //  paper.path(map.regions[i].pathString).attr("fill", '#ffffff'); ///TODO: This line changes color of countries
                    // if onclick
 
-                 if (showCentersAndConnection)
-                paper.circle(map.regions[i].center.x, map.regions[i].center.y, 5).attr("fill", '#F39C12'); //changes color of vertices on graph
+                 if (showCentersAndConnection%2 == 1)
+                paper.circle(foo1.regions[i].center.x, foo1.regions[i].center.y, 5).attr("fill", '#F39C12'); //changes color of vertices on graph
                 }
                 
-                if (showCentersAndConnection) {                             
-                    for (var i = 0; i < map.adjacencyMatrix.length; i++) {      
+                if (showCentersAndConnection%2 == 1) {                             
+                    for (var i = 0; i < foo1.adjacencyMatrix.length; i++) {      
                         for (var j = 0; j < i; j++) {
-                            if (map.adjacencyMatrix[i][j] != 0)
+                            if (foo1.adjacencyMatrix[i][j] != 0)
                                 paper.path(
-                                    'M ' + map.regions[i].center.x + 
-                                    ',' + map.regions[i].center.y + 
-                                    ' L ' + map.regions[j].center.x + 
-                                    ',' + map.regions[j].center.y + ' Z'
+                                    'M ' + foo1.regions[i].center.x + 
+                                    ',' + foo1.regions[i].center.y + 
+                                    ' L ' + foo1.regions[j].center.x + 
+                                    ',' + foo1.regions[j].center.y + ' Z'
                                 ).attr({'stroke': '#000000', 'stroke-width': 3, 'opacity': 0.5}); //changes color of lines connecting vertices 
                             }
                         }        
 
                      
                 }
-          
-
-
-          }
-          catch(e) {
-                alert(e);
-            }
-        }
-
-    
-
-generateButton.onclick = generate;
-        var foo1 = generate();                         //though it's confusing, you can call functions before you define them in JavaScript
-
-
+          //////
 
       
     </script>
