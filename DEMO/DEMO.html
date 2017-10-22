@@ -1,0 +1,293 @@
+<!DOCTYPE html> 
+<html>
+<head>
+    <title>Map Generator</title>
+    
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" /> 
+    <meta name="description" content="A hexagon based, random map generator written in javascript. You can change the size of the map and of a single hexagon, pick the amount of countries, decide between compact or total random country shapes, add a variance for the country size and toggle distortion." /> 
+    <meta name="author" content="David Strauß" />
+    <meta name="author" content="Eberhard Gräther" />
+    <meta name="author" content="Christian Winkler" />
+        
+    <script src="raphael.js" type="text/javascript"></script>
+    <script src="../lib/point.js" type="text/javascript"></script>
+    <script src="../lib/line.js" type="text/javascript"></script>
+    <script src="../lib/hexagon.js" type="text/javascript"></script>
+    <script src="../lib/country.js" type="text/javascript"></script>
+    <script src="../lib/map.js" type="text/javascript"></script>
+    <script src="../lib/mapgenerator.js" type="text/javascript"></script>
+
+<div id="place">
+        </div>
+
+    <link href='style.css' rel='stylesheet' type='text/css'>
+</head>
+<body>
+    <div id="panel">
+        <div id="info">
+         
+      <p> 
+      <button id=red style="background: #ff0000" onclick="coloring('#ff0000')">______</button>
+    <button id=green style="background: #00ff00"onclick="coloring('#00ff00')">______</button>
+    <button id=blue style="background: #0000ff"onclick="coloring('#0000ff')">______</button>
+    <button id=yellow style="background: #ffff00"onclick ="coloring('#ffff00')">______</button> 
+    <button id= clear onclick="coloring('#fff')">eraser</button>
+    <p>
+    <span> Choose your color here</span>   
+    </p>
+
+    <p>
+    </p>
+
+    <button id= check onclick="check()">check coloring</button>
+    <button id= check onclick="showGraph()">show graph</button>
+    <button id= check onclick="clearAll()">clear all</button>
+
+
+    </p>
+        </div>
+        <div id="settings">
+            <form>
+                <fieldset id="firstColumn">
+                  <!--  <span>Size of map (px): </span><input type="text" id="mapWidth" value="1000"/> x <input type="text" id="mapHeight" value="650"/><br />
+                    <span>Size of a hexagon(px)(+easy,-hard): </span><input type="text" id="hexagonSize" value="40"/><br />
+                    <span>Number of countries: </span><input type="text" id="numberOfCountries" value="20"/>
+                </fieldset>
+                <fieldset id="secondColumn">
+                    <span>Country size variance (0 - 0.9): </span><input type="text" id="countrySizeVariance" value="0.5"/><br />
+                </fieldset>
+                <fieldset id="thirdColumn">
+                    
+                    <span>Compact country shapes:</span> 
+                    <input type="checkbox" id="useCompactShapes"><br />
+                    <input type="checkbox" id="useDistortion"> -->
+
+                    <input type="button" value="Generate New Map" onClick="window.location.reload()">
+               
+                </fieldset>
+            </form>
+        </div>
+    </div>
+    <div id="paper">
+    </div>
+
+    <script type="text/javascript">
+
+
+
+
+///get HTML values
+            var width = 1200;//parseInt(document.getElementById('mapWidth').value);
+            var height = 600;//parseInt(document.getElementById('mapHeight').value);
+            var hexagonSize = 40;//parseInt(document.getElementById('hexagonSize').value);
+            var numberOfCountries = 20;//parseInt(document.getElementById('numberOfCountries').value);
+            var countrySizeVariance = .5;//parseFloat(document.getElementById('countrySizeVariance').value);
+            var useDistortion = true; //document.getElementById('useDistortion');
+            var useCompactShapes = true;//document.getElementById('useCompactShapes');
+
+
+
+
+
+
+    var generateButton = document.getElementById('generate');
+    var paper = Raphael("place", 10, 10); // have absolutely no idea what this does
+
+
+/////COLOR SECTION//////,i.e, choose colors here
+var color = "#ff0000";
+var hoverColor = "#ff6666";
+var defcolor = "#fff"; //default color of regions
+var strcolor = "#555" //default color of lines that separate regions
+
+
+function coloring(choice){
+
+color = choice;
+hoverColor= choice.replace(/0/g, "6")
+
+};
+/////end color
+
+
+
+
+
+
+///////GENERATE FUNCTION////////
+function generate() {
+            paper.clear();
+            paper.setSize(width, height);
+
+          try {
+
+            var generator = new MapGenerator();
+
+                
+                generator.createHexagonPattern(
+                    width,
+                    height,
+                    hexagonSize,
+                    useDistortion
+                );
+                
+                generator.generate(
+                    numberOfCountries,
+                    countrySizeVariance,
+                    useCompactShapes
+                );
+                
+                var map = generator.getMap();      
+         }
+
+          catch(e) {
+                alert(e);
+            }
+      
+           return map;
+
+
+        }
+////////generate fnc ends
+
+
+
+
+
+
+var foo1 = generate();   
+
+
+
+
+//////////ON CLICK Section////////
+
+var style = {
+        fill: defcolor,
+        stroke: strcolor,
+        "stroke-width": 2,
+        "stroke-linejoin": "round"  };
+
+var regionSet = {} ;
+
+for(var i=0; i< foo1.regions.length; i++){
+
+        regionSet[i] = paper.path(foo1.regions[i].pathString).attr(style); 
+    }
+
+
+
+
+for(var i in regionSet) {
+//make new set of region colors to check, more concret tahn animations
+    (function clickHigher(regioncolor) {
+
+
+
+        regioncolor.state = 0;
+    
+
+        regioncolor.node.onclick = function clicking() {
+            
+            if(this.state == 0) {
+                this.state = 1;
+                regioncolor.animate({fill: color, stroke: strcolor}, 10); //color at moment of click when colored; should be just var color
+            
+                
+            }
+ 
+              else {
+                this.state = 0;
+                regioncolor.animate({fill: color, stroke: strcolor}, 10); // color at moment of click when uncolored; should be just default background color
+
+            }
+        
+
+
+        }
+
+    }) (regionSet[i]);
+
+  
+   }   /// end onclick
+
+///Clear all
+
+function clearAll(){
+
+    for (var i in regionSet){
+(function (regioncolor){
+    regioncolor.animate({fill: defcolor, stroke: strcolor}, 10)
+}) (regionSet[i]);
+
+}
+
+}
+
+
+///// end clear all
+
+
+///Checking function///
+function check() {
+var error = 0;
+for (var j = 0; j < foo1.adjacencyMatrix.length; j++) {      //map.adjacency.length = number of countries
+            for (var k = 0; k < j; k++) {
+                         if (foo1.adjacencyMatrix[j][k] != 0) {
+                            if (regionSet[j].attr('fill')===regionSet[k].attr('fill')) 
+                                        error++;
+                                     
+                                else {
+
+                                    }
+
+                            }
+                            }
+                            }
+if (error>0){
+alert("this is a NON-VALID coloring");                                
+}
+else {
+alert("this is a VALID coloring");
+}
+        }  
+//////////end check
+
+
+
+///////show graph centers and connections
+var showCentersAndConnection = 0;
+
+function showGraph(){
+    showCentersAndConnection++;
+
+                for (var i = 0; i < foo1.regions.length; i++) {          
+                  //  paper.path(map.regions[i].pathString).attr("fill", '#ffffff'); ///TODO: This line changes color of countries
+                   // if onclick
+
+                 if (showCentersAndConnection%2 == 1)
+                paper.circle(foo1.regions[i].center.x, foo1.regions[i].center.y, 5).attr("fill", '#F39C12'); //changes color of vertices on graph
+                }
+                
+                if (showCentersAndConnection%2 == 1) {                             
+                    for (var i = 0; i < foo1.adjacencyMatrix.length; i++) {      
+                        for (var j = 0; j < i; j++) {
+                            if (foo1.adjacencyMatrix[i][j] != 0)
+                                paper.path(
+                                    'M ' + foo1.regions[i].center.x + 
+                                    ',' + foo1.regions[i].center.y + 
+                                    ' L ' + foo1.regions[j].center.x + 
+                                    ',' + foo1.regions[j].center.y + ' Z'
+                                ).attr({'stroke': '#000000', 'stroke-width': 3, 'opacity': 0.5}); //changes color of lines connecting vertices 
+                            }
+                        }        
+
+                     
+                }
+            }
+////////end showGraph
+
+      
+    </script>
+</body>
+</html>
