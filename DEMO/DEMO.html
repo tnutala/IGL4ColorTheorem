@@ -1,13 +1,18 @@
-<!DOCTYPE html> 
+
+<!DOCTYPE html>
+ <!-- 
+Code modified from https://github.com/stravid/mapgenerator:
+ credit to: "David Strauß"
+            "Eberhard Gräther"
+            "Christian Winkler"
+   -->  
 <html>
 <head>
     <title>Map Generator</title>
     
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" /> 
     <meta name="description" content="A hexagon based, random map generator written in javascript. You can change the size of the map and of a single hexagon, pick the amount of countries, decide between compact or total random country shapes, add a variance for the country size and toggle distortion." /> 
-    <meta name="author" content="David Strauß" />
-    <meta name="author" content="Eberhard Gräther" />
-    <meta name="author" content="Christian Winkler" />
+
         
     <script src="raphael.js" type="text/javascript"></script>
     <script src="../lib/point.js" type="text/javascript"></script>
@@ -39,8 +44,6 @@
     <p>
     </p>
 
-    <button id= check onclick="check()">check coloring</button>
-    <button id= check onclick="showGraph()">show graph</button>
     <button id= check onclick="clearAll()">clear all</button>
 
 
@@ -49,19 +52,19 @@
         <div id="settings">
             <form>
                 <fieldset id="firstColumn">
-                  <!--  <span>Size of map (px): </span><input type="text" id="mapWidth" value="1000"/> x <input type="text" id="mapHeight" value="650"/><br />
-                    <span>Size of a hexagon(px)(+easy,-hard): </span><input type="text" id="hexagonSize" value="40"/><br />
-                    <span>Number of countries: </span><input type="text" id="numberOfCountries" value="20"/>
+                 
+                    <input type="button" value="Show Graph" onClick="showGraph()">
+
+                    <input type="button" value="Check Coloring" onClick="check()">
+               
                 </fieldset>
                 <fieldset id="secondColumn">
-                    <span>Country size variance (0 - 0.9): </span><input type="text" id="countrySizeVariance" value="0.5"/><br />
+                 <p>
+                 </p>
+               
                 </fieldset>
                 <fieldset id="thirdColumn">
-                    
-                    <span>Compact country shapes:</span> 
-                    <input type="checkbox" id="useCompactShapes"><br />
-                    <input type="checkbox" id="useDistortion"> -->
-
+                 
                     <input type="button" value="Generate New Map" onClick="window.location.reload()">
                
                 </fieldset>
@@ -77,13 +80,13 @@
 
 
 ///get HTML values
-            var width = 1200;//parseInt(document.getElementById('mapWidth').value);
-            var height = 600;//parseInt(document.getElementById('mapHeight').value);
-            var hexagonSize = 40;//parseInt(document.getElementById('hexagonSize').value);
-            var numberOfCountries = 20;//parseInt(document.getElementById('numberOfCountries').value);
-            var countrySizeVariance = .5;//parseFloat(document.getElementById('countrySizeVariance').value);
-            var useDistortion = true; //document.getElementById('useDistortion');
-            var useCompactShapes = true;//document.getElementById('useCompactShapes');
+            var width = 1200;
+            var height = 600;
+            var hexagonSize = 40;
+            var numberOfCountries = 20;
+            var countrySizeVariance = .5;
+            var useDistortion = true; 
+            var useCompactShapes = true;
 
 
 
@@ -262,8 +265,7 @@ function showGraph(){
     showCentersAndConnection++;
 
                 for (var i = 0; i < foo1.regions.length; i++) {          
-                  //  paper.path(map.regions[i].pathString).attr("fill", '#ffffff'); ///TODO: This line changes color of countries
-                   // if onclick
+                  
 
                  if (showCentersAndConnection%2 == 1)
                 paper.circle(foo1.regions[i].center.x, foo1.regions[i].center.y, 5).attr("fill", '#F39C12'); //changes color of vertices on graph
